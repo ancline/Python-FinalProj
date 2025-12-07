@@ -1,0 +1,171 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - Attendance System</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <style>
+      /* Error Message Styling */
+      .error-message {
+        background: #f8d7da;
+        color: #721c24;
+        border: 2px solid #f5c6cb;
+        padding: 15px 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: shake 0.5s ease;
+      }
+
+      .error-message i {
+        font-size: 1.2rem;
+      }
+
+      @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+        20%, 40%, 60%, 80% { transform: translateX(5px); }
+      }
+
+      .success-message {
+        background: #d4edda;
+        color: #155724;
+        border: 2px solid #c3e6cb;
+        padding: 15px 20px;
+        border-radius: 12px;
+        margin-bottom: 20px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        animation: slideDown 0.3s ease;
+      }
+
+      @keyframes slideDown {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Input error state */
+      .input-group input.error {
+        border-color: #e74c3c;
+        background-color: #ffe6e6;
+      }
+
+      .input-group input.error:focus {
+        border-color: #c0392b;
+        box-shadow: 0 0 0 4px rgba(231, 76, 60, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Animated Background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Back Button -->
+    <a href="/" class="back-btn">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+      Back to Home
+    </a>
+
+    <!-- Login Container -->
+    <div class="form-container">
+      <div class="form-header">
+        <h2>Welcome Back</h2>
+        <p>Login to your account</p>
+      </div>
+
+      <!-- Error Message (Flask flash messages) -->
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="{{ 'error-message' if category == 'error' else 'success-message' }}">
+              <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'check-circle' }}"></i>
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      <form action="{{ url_for('login') }}" method="POST" id="loginForm">
+        <div class="input-group">
+          <label for="email">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+
+        <button type="submit" class="submit-btn">Login</button>
+      </form>
+
+      <div class="form-link">
+        Don't have an account?
+        <a href="{{ url_for('register') }}">Register here</a>
+      </div>
+    </div>
+
+    <script>
+      // Create animated particles
+      const particlesContainer = document.getElementById("particles");
+      for (let i = 0; i < 30; i++) {
+        const particle = document.createElement("div");
+        particle.className = "particle";
+        particle.style.left = Math.random() * 100 + "%";
+        particle.style.animationDelay = Math.random() * 15 + "s";
+        particle.style.animationDuration = Math.random() * 10 + 10 + "s";
+        particlesContainer.appendChild(particle);
+      }
+
+      // Add error class to inputs if there's an error message
+      const errorMessage = document.querySelector('.error-message');
+      if (errorMessage) {
+        document.getElementById('email').classList.add('error');
+        document.getElementById('password').classList.add('error');
+      }
+
+      // Remove error class on input
+      const inputs = document.querySelectorAll('input');
+      inputs.forEach(function(input) {
+        input.addEventListener('input', function() {
+          this.classList.remove('error');
+        });
+      });
+    </script>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  </body>
+</html>
