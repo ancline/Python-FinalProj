@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register - Attendance System</title>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <!-- Animated Background -->
+    <div class="particles" id="particles"></div>
+
+    <!-- Back Button -->
+    <a href="/" class="back-btn">
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+      >
+        <path d="M19 12H5M12 19l-7-7 7-7" />
+      </svg>
+      Back to Home
+    </a>
+
+    <!-- Register Container -->
+    <div class="form-container">
+      <div class="form-header">
+        <h2>Create Account</h2>
+        <p>Register for a new account</p>
+      </div>
+
+      <form action="{{ url_for('register') }}" method="POST">
+        <div class="input-group">
+          <label for="name">Full Name</label>
+          <input
+            type="text"
+            id="name"
+            name="name"
+            placeholder="Enter your full name"
+            required
+          />
+        </div>
+
+        <div class="input-group">
+          <label for="email">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            placeholder="Enter your email"
+            required
+          />
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            placeholder="Enter your password"
+            required
+          />
+        </div>
+
+        <div class="input-group">
+          <label for="confirm_password">Confirm Password</label>
+          <input
+            type="password"
+            id="confirm_password"
+            name="confirm_password"
+            placeholder="Confirm your password"
+            required
+          />
+        </div>
+
+        <button type="submit" class="submit-btn">Register</button>
+      </form>
+
+      <div class="form-link">
+        Already have an account?
+        <a href="{{ url_for('login') }}">Login here</a>
+      </div>
+    </div>
+
+    <script>
+      // Create animated particles (same as login page)
+      const particlesContainer = document.getElementById("particles");
+      for (let i = 0; i < 30; i++) {
+        const particle = document.createElement("div");
+        particle.className = "particle";
+        particle.style.left = Math.random() * 100 + "%";
+        particle.style.animationDelay = Math.random() * 15 + "s";
+        particle.style.animationDuration = Math.random() * 10 + 10 + "s";
+        particlesContainer.appendChild(particle);
+      }
+    </script>
+  </body>
+</html>

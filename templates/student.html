@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Student Management</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        overflow-x: hidden;
+      }
+
+      .admin-main {
+        padding: 40px;
+        color: #333;
+        width: 80%;
+        max-width: 1200px;
+        background-color: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        margin-top: 40px;
+      }
+
+      .page-title {
+        font-size: 2rem;
+        color: #667eea;
+        font-weight: 600;
+        margin-bottom: 40px;
+        text-align: center;
+      }
+
+      .camera-section {
+        display: flex;
+        justify-content: space-between;
+        gap: 30px;
+        margin-bottom: 30px;
+        align-items: center;
+      }
+
+      .camera-view,
+      .camera-result {
+        width: 45%;
+        height: 250px;
+        border-radius: 12px;
+        background-color: #f8f9ff;
+        border: 2px solid #e0e0e0;
+      }
+
+      .camera-view video {
+        width: 100%;
+        height: 100%;
+        border-radius: 12px;
+        object-fit: cover;
+      }
+
+      .camera-result canvas {
+        width: 100%;
+        height: 100%;
+        border-radius: 12px;
+        object-fit: cover;
+      }
+
+      .form-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .input-group {
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .input-group label {
+        font-weight: 600;
+        font-size: 1rem;
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+      }
+
+      .input-group input {
+        width: 100%;
+        padding: 12px;
+        border-radius: 12px;
+        border: 2px solid #e0e0e0;
+        font-size: 1rem;
+        background-color: #f8f9ff;
+        transition: all 0.3s ease;
+      }
+
+      .input-group input:focus {
+        outline: none;
+        border-color: #667eea;
+        background-color: white;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 30px;
+      }
+
+      .submit-btn,
+      .cancel-btn {
+        padding: 12px 24px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        border: none;
+        flex: 1;
+      }
+
+      .submit-btn {
+        background: #667eea;
+        color: white;
+      }
+
+      .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      .cancel-btn {
+        background: #e74c3c;
+        color: white;
+      }
+
+      .cancel-btn:hover {
+        transform: translateY(-2px);
+        background: #c0392b;
+      }
+
+      .qr-display {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 30px;
+        border-top: 2px solid #e0e0e0;
+        display: none;
+      }
+
+      .qr-display h3 {
+        color: #667eea;
+        margin-bottom: 15px;
+      }
+
+      #qrcode {
+        display: inline-block;
+        background: white;
+        padding: 10px;
+        border-radius: 12px;
+        border: 2px solid #e0e0e0;
+      }
+
+      .status-message {
+        padding: 12px 15px;
+        border-radius: 8px;
+        margin-top: 15px;
+        text-align: center;
+        font-weight: 600;
+        display: none;
+      }
+
+      .status-message.success {
+        background: #d4edda;
+        color: #155724;
+        display: block;
+      }
+
+      .status-message.error {
+        background: #f8d7da;
+        color: #721c24;
+        display: block;
+      }
+
+      .loading {
+        display: none;
+        text-align: center;
+        color: #667eea;
+        font-weight: 600;
+      }
+
+      .edit-mode-indicator {
+        background: #fff3cd;
+        color: #856404;
+        padding: 10px;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 20px;
+        font-weight: 600;
+        display: none;
+      }
+
+      @media (max-width: 768px) {
+        .camera-section {
+          flex-direction: column;
+        }
+
+        .camera-view,
+        .camera-result {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="admin-main">
+      <h1 class="page-title" id="pageTitle">👤 Student Management</h1>
+
+      <!-- Edit Mode Indicator -->
+      <div class="edit-mode-indicator" id="editModeIndicator">
+        📝 Edit Mode - Updating existing student
+      </div>
+
+      <!-- Camera Section -->
+      <div class="camera-section">
+        <div class="camera-view">
+          <video id="cameraFeed" autoplay></video>
+        </div>
+        <div class="camera-result">
+          <canvas id="cameraResult"></canvas>
+        </div>
+      </div>
+
+      <!-- Form Fields -->
+      <div class="form-row">
+        <div class="input-group">
+          <label>IDNO</label>
+          <input type="text" id="idno" placeholder="Enter IDNO" />
+        </div>
+        <div class="input-group">
+          <label>Last Name</label>
+          <input type="text" id="lastname" placeholder="Enter Last Name" />
+        </div>
+        <div class="input-group">
+          <label>First Name</label>
+          <input type="text" id="firstname" placeholder="Enter First Name" />
+        </div>
+        <div class="input-group">
+          <label>Course</label>
+          <input type="text" id="course" placeholder="Enter Course" />
+        </div>
+        <div class="input-group">
+          <label>Level</label>
+          <input type="text" id="level" placeholder="Enter Level" />
+        </div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="button-group">
+        <button class="submit-btn" id="snapBtn">📷 Snap Photo</button>
+        <button class="cancel-btn" id="clearBtn">🗑️ Clear</button>
+        <button class="cancel-btn" id="backBtn">← Back to List</button>
+      </div>
+
+      <div class="loading" id="loading">Uploading photo...</div>
+
+      <!-- QR Display -->
+      <div class="qr-display" id="qrDisplay">
+        <h3>Generated QR Code</h3>
+        <canvas id="qrcode"></canvas>
+        <div class="status-message success">
+          ✓ QR Code generated successfully!
+        </div>
+
+        <!-- Save/Cancel Buttons -->
+        <div class="button-group" style="margin-top: 20px">
+          <button class="submit-btn" id="saveBtn">💾 Save</button>
+          <button class="cancel-btn" id="discardBtn">❌ Discard</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+    <script>
+      const video = document.getElementById("cameraFeed");
+      const canvas = document.getElementById("cameraResult");
+      let capturedImageData = null;
+      let isEditMode = false;
+      let editStudentId = null;
+
+      // Check if we're in edit mode
+      const urlParams = new URLSearchParams(window.location.search);
+      const editId = urlParams.get('edit');
+
+      if (editId) {
+        isEditMode = true;
+        editStudentId = editId;
+        document.getElementById('editModeIndicator').style.display = 'block';
+        document.getElementById('pageTitle').textContent = '✏️ Edit Student';
+
+        // Load student data from sessionStorage
+        const studentData = JSON.parse(sessionStorage.getItem('editStudentData'));
+        if (studentData) {
+          document.getElementById('idno').value = studentData.idno;
+          document.getElementById('lastname').value = studentData.lastname;
+          document.getElementById('firstname').value = studentData.firstname;
+          document.getElementById('course').value = studentData.course;
+          document.getElementById('level').value = studentData.level;
+        }
+      }
+
+      // Initialize camera
+      navigator.mediaDevices
+        .getUserMedia({ video: true })
+        .then((stream) => {
+          video.srcObject = stream;
+        })
+        .catch((err) => console.error("Camera access denied:", err));
+
+      // Back button
+      document.getElementById("backBtn").addEventListener("click", () => {
+        window.location.href = "/studentmngt";
+      });
+
+      // Snap button
+      document.getElementById("snapBtn").addEventListener("click", () => {
+        // Capture to display canvas
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const context = canvas.getContext("2d");
+        context.drawImage(video, 0, 0);
+
+        // Get full resolution image
+        capturedImageData = canvas.toDataURL("image/jpeg");
+        sessionStorage.setItem("snappedImage", capturedImageData);
+
+        // Get form data
+        const idno = document.getElementById("idno").value.trim();
+        const lastname = document.getElementById("lastname").value.trim();
+        const firstname = document.getElementById("firstname").value.trim();
+        const course = document.getElementById("course").value.trim();
+        const level = document.getElementById("level").value.trim();
+
+        if (
+          idno &&
+          lastname &&
+          firstname &&
+          course &&
+          level &&
+          capturedImageData
+        ) {
+          uploadPhotoAndGenerateQR(
+            idno,
+            lastname,
+            firstname,
+            course,
+            level,
+            capturedImageData
+          );
+        } else if (!capturedImageData) {
+          alert("Please snap a photo first!");
+        } else {
+          alert("Please fill in all fields before generating QR code!");
+        }
+      });
+
+      // Upload photo to server
+      function uploadPhotoAndGenerateQR(
+        idno,
+        lastname,
+        firstname,
+        course,
+        level,
+        photoData
+      ) {
+        document.getElementById("loading").style.display = "block";
+
+        fetch("/upload-photo", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            idno: idno,
+            lastname: lastname,
+            firstname: firstname,
+            course: course,
+            level: level,
+            photoData: photoData,
+          }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("loading").style.display = "none";
+            if (data.success) {
+              generateQR(idno, lastname, firstname, course, level);
+              alert("Photo uploaded! QR generated.");
+            } else {
+              alert("Error uploading photo: " + data.message);
+            }
+          })
+          .catch((error) => {
+            document.getElementById("loading").style.display = "none";
+            console.error("Upload error:", error);
+            alert("Error uploading photo: " + error.message);
+          });
+      }
+
+      // Generate QR code
+      function generateQR(idno, lastname, firstname, course, level) {
+        const studentData = JSON.stringify({
+          idno: idno,
+          lastname: lastname,
+          firstname: firstname,
+          course: course,
+          level: level,
+        });
+
+        new QRious({
+          element: document.getElementById("qrcode"),
+          value: studentData,
+          size: 250,
+        });
+
+        document.getElementById("qrDisplay").style.display = "block";
+      }
+
+      // Clear button
+      document.getElementById("clearBtn").addEventListener("click", () => {
+        if (isEditMode) {
+          // In edit mode, reload the original data
+          const studentData = JSON.parse(sessionStorage.getItem('editStudentData'));
+          if (studentData) {
+            document.getElementById('idno').value = studentData.idno;
+            document.getElementById('lastname').value = studentData.lastname;
+            document.getElementById('firstname').value = studentData.firstname;
+            document.getElementById('course').value = studentData.course;
+            document.getElementById('level').value = studentData.level;
+          }
+        } else {
+          // In add mode, clear everything
+          document.getElementById("idno").value = "";
+          document.getElementById("lastname").value = "";
+          document.getElementById("firstname").value = "";
+          document.getElementById("course").value = "";
+          document.getElementById("level").value = "";
+        }
+        canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+        document.getElementById("qrDisplay").style.display = "none";
+        capturedImageData = null;
+      });
+
+      // Save button
+      document.getElementById("saveBtn").addEventListener("click", () => {
+        const idno = document.getElementById("idno").value.trim();
+        const lastname = document.getElementById("lastname").value.trim();
+        const firstname = document.getElementById("firstname").value.trim();
+        const course = document.getElementById("course").value.trim();
+        const level = document.getElementById("level").value.trim();
+
+        if (!idno || !lastname || !firstname || !course || !level) {
+          alert("Please fill in all fields before saving!");
+          return;
+        }
+
+        if (isEditMode) {
+          // Update existing student
+          fetch(`/update-student/${editStudentId}`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idno, lastname, firstname, course, level })
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                alert("Student updated successfully!");
+
+                // Download QR code
+                const qrCanvas = document.getElementById("qrcode");
+                const link = document.createElement("a");
+                link.href = qrCanvas.toDataURL("image/png");
+                link.download = `${idno}_QR.png`;
+                link.click();
+
+                // Clear sessionStorage
+                sessionStorage.removeItem('editStudentData');
+
+                // Redirect back to student management
+                setTimeout(() => {
+                  window.location.href = "/studentmngt";
+                }, 500);
+              } else {
+                alert("Error updating student: " + data.message);
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Error updating student!");
+            });
+        } else {
+          // Save new student
+          fetch("/save-student", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ idno, lastname, firstname, course, level })
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                alert("Student saved successfully!");
+
+                // Download QR code
+                const qrCanvas = document.getElementById("qrcode");
+                const link = document.createElement("a");
+                link.href = qrCanvas.toDataURL("image/png");
+                link.download = `${idno}_QR.png`;
+                link.click();
+
+                // Clear form after saving
+                document.getElementById("clearBtn").click();
+
+                // Redirect to studentmngt page
+                setTimeout(() => {
+                  window.location.href = "/studentmngt";
+                }, 500);
+              } else {
+                alert("Error saving student: " + data.message);
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+              alert("Error saving student!");
+            });
+        }
+      });
+
+      // Discard button
+      document.getElementById("discardBtn").addEventListener("click", () => {
+        document.getElementById("clearBtn").click();
+      });
+    </script>
+  </body>
+</html>

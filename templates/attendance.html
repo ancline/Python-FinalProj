@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Attendance Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        display: flex;
+      }
+
+      .container {
+        display: flex;
+        width: 100%;
+        min-height: 100vh;
+        padding: 20px;
+        gap: 20px;
+      }
+
+      /* ===== SIDEBAR ===== */
+      .sidebar {
+        width: 250px;
+        flex-shrink: 0;
+      }
+
+      .sidebar-box {
+        background: rgba(102, 126, 234, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 20px;
+        padding: 30px 20px;
+        backdrop-filter: blur(10px);
+      }
+
+      .sidebar-header {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+        text-align: left;
+      }
+
+      .sidebar-header h1 {
+        font-size: 1.5rem;
+        color: white;
+        font-weight: 700;
+        margin-bottom: 5px;
+      }
+
+      .sidebar-header p {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 500;
+      }
+
+      .sidebar-menu {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .sidebar-menu li {
+        margin: 0;
+      }
+
+      .sidebar-menu a {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 14px 16px;
+        color: white;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.9rem;
+        border-radius: 10px;
+        background: transparent;
+        transition: all 0.3s ease;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .sidebar-menu a:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      .sidebar-menu a.active {
+        background: rgba(255, 255, 255, 0.25);
+      }
+
+      .sidebar-menu a i {
+        width: 18px;
+        font-size: 1rem;
+      }
+
+      .nav-divider {
+        height: 1px;
+        background: rgba(255, 255, 255, 0.3);
+        margin: 15px 0;
+      }
+
+      .logout-item {
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      .logout-item:hover {
+        background: rgba(255, 100, 100, 0.3);
+      }
+
+      /* ===== MAIN CONTENT ===== */
+      .main-content {
+        flex: 1;
+        overflow-y: auto;
+      }
+
+      .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        background: rgba(102, 126, 234, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        padding: 20px 30px;
+        border-radius: 15px;
+        backdrop-filter: blur(10px);
+      }
+
+      .page-header h1 {
+        color: white;
+        font-size: 1.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
+
+      .back-btn {
+        background: white;
+        color: #667eea;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .back-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+      }
+
+      .back-btn i {
+        transition: transform 0.3s ease;
+      }
+
+      .back-btn:hover i {
+        transform: translateX(-3px);
+      }
+
+      .content-box {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      }
+
+      .content-box h2 {
+        color: #667eea;
+        font-size: 1.3rem;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .filter-section {
+        display: flex;
+        gap: 15px;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .filter-section label {
+        font-weight: 600;
+        color: #333;
+      }
+
+      .filter-section input {
+        padding: 10px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        flex: 1;
+        max-width: 300px;
+      }
+
+      .filter-section input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 10px rgba(102, 126, 234, 0.2);
+      }
+
+      .find-btn {
+        padding: 10px 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .find-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+      }
+
+      /* ===== TABLE ===== */
+      .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+
+      .attendance-table thead {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
+
+      .attendance-table th {
+        padding: 16px;
+        text-align: left;
+        font-weight: 700;
+      }
+
+      .attendance-table tbody tr {
+        border-bottom: 1px solid #e0e0e0;
+        transition: all 0.2s ease;
+      }
+
+      .attendance-table tbody tr:hover {
+        background: #f8f9ff;
+      }
+
+      .attendance-table td {
+        padding: 14px 16px;
+        color: #333;
+      }
+
+      .pagination {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid #e0e0e0;
+      }
+
+      .pagination-info {
+        color: #999;
+        font-size: 0.9rem;
+      }
+
+      .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: #999;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 40px;
+        color: #667eea;
+        font-weight: 600;
+      }
+
+      /* Responsive */
+      @media (max-width: 768px) {
+        .container {
+          flex-direction: column;
+          padding: 10px;
+        }
+
+        .sidebar {
+          width: 100%;
+        }
+
+        .main-content {
+          padding: 0;
+        }
+
+        .filter-section {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .filter-section input {
+          max-width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <div class="sidebar-box">
+          <div class="sidebar-header">
+            <h1>Admin Panel</h1>
+            <p>PYTHON 8:30 - 10:30 MW</p>
+          </div>
+          <ul class="sidebar-menu">
+            <li>
+              <a href="/admin">
+                <i class="fas fa-users"></i>
+                USER MANAGEMENT
+              </a>
+            </li>
+            <li>
+              <a href="/studentmngt">
+                <i class="fas fa-user-graduate"></i>
+                STUDENT MANAGEMENT
+              </a>
+            </li>
+            <li>
+              <a href="/attendance" class="active">
+                <i class="fas fa-clipboard-check"></i>
+                ATTENDANCE
+              </a>
+            </li>
+            <div class="nav-divider"></div>
+            <li>
+              <a href="/logout" class="logout-item">
+                <i class="fas fa-sign-out-alt"></i>
+                LOGOUT
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Main Content -->
+      <div class="main-content">
+        <!-- Page Header -->
+        <div class="page-header">
+          <h1>ATTENDANCE</h1>
+          <button class="back-btn" onclick="window.location.href='/'">
+            <i class="fas fa-arrow-left"></i>
+            Back to Home
+          </button>
+        </div>
+
+        <!-- Filter Box -->
+        <div class="content-box">
+          <div class="filter-section">
+            <label for="dateFilter">DATE:</label>
+            <input type="date" id="dateFilter" />
+            <button class="find-btn" onclick="searchAttendance()">
+              <i class="fas fa-search"></i>
+              FIND
+            </button>
+          </div>
+        </div>
+
+        <!-- Table Box -->
+        <div class="content-box">
+          <h2><i class="fas fa-clipboard-list"></i> Attendance List</h2>
+          <table class="attendance-table">
+            <thead>
+              <tr>
+                <th style="width: 15%">IDNO</th>
+                <th style="width: 25%">TIME-IN</th>
+                <th style="width: 30%">NAME</th>
+                <th style="width: 30%">COURSE & LEVEL</th>
+              </tr>
+            </thead>
+            <tbody id="attendanceTableBody">
+              <tr>
+                <td colspan="4" class="loading">Loading attendance records...</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="pagination">
+            <div class="pagination-info" id="paginationInfo">
+              Showing records
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Set today's date as default
+      document.getElementById("dateFilter").valueAsDate = new Date();
+
+      // Load today's attendance on page load
+      window.addEventListener('DOMContentLoaded', function() {
+        loadTodayAttendance();
+      });
+
+      function loadTodayAttendance() {
+        const today = new Date().toISOString().split('T')[0];
+        fetchAttendance(today);
+      }
+
+      function searchAttendance() {
+        const dateInput = document.getElementById("dateFilter").value;
+        if (!dateInput) {
+          alert("Please select a date first!");
+          return;
+        }
+        fetchAttendance(dateInput);
+      }
+
+      function fetchAttendance(date) {
+        const tableBody = document.getElementById("attendanceTableBody");
+        tableBody.innerHTML = '<tr><td colspan="4" class="empty-state">Loading...</td></tr>';
+
+        fetch('/get-attendance?date=' + date)
+          .then(function(response) {
+            return response.json();
+          })
+          .then(function(data) {
+            if (data.success) {
+              populateTable(data.records);
+            } else {
+              tableBody.innerHTML = '<tr><td colspan="4" class="empty-state">Error: ' + data.message + '</td></tr>';
+            }
+          })
+          .catch(function(error) {
+            console.error('Error fetching attendance:', error);
+            tableBody.innerHTML = '<tr><td colspan="4" class="empty-state">Error loading attendance records</td></tr>';
+          });
+      }
+
+      function populateTable(records) {
+        const tableBody = document.getElementById("attendanceTableBody");
+        const paginationInfo = document.getElementById("paginationInfo");
+        
+        if (records.length === 0) {
+          tableBody.innerHTML = '<tr><td colspan="4" class="empty-state">No attendance records found for this date</td></tr>';
+          if (paginationInfo) paginationInfo.textContent = 'No records';
+          return;
+        }
+
+        // Sort records alphabetically by lastname, then firstname
+        records.sort(function(a, b) {
+          const lastNameCompare = a.lastname.localeCompare(b.lastname);
+          if (lastNameCompare !== 0) {
+            return lastNameCompare;
+          }
+          return a.firstname.localeCompare(b.firstname);
+        });
+
+        tableBody.innerHTML = records
+          .map(function(record) {
+            // Format time (remove date, keep only time)
+            const timeIn = new Date(record.time_in).toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
+              hour12: true
+            });
+
+            return '<tr>' +
+              '<td>' + record.idno + '</td>' +
+              '<td>' + timeIn + '</td>' +
+              '<td>' + record.lastname + ', ' + record.firstname + '</td>' +
+              '<td>' + record.course + ' ' + record.level + '</td>' +
+              '</tr>';
+          })
+          .join("");
+
+        if (paginationInfo) {
+          paginationInfo.textContent = 'Showing ' + records.length + ' record' + (records.length > 1 ? 's' : '');
+        }
+      }
+    </script>
+  </body>
+</html>
